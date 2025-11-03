@@ -1,1 +1,11 @@
-# AIX_DL_Final_Project
+# AI+X:DL Final Project
+
+## Members
+- 김모연, 융합전자공학부 3학년
+- 박현우, 컴퓨터 AI+X:DL Final Project
+
+## Members
+- 김모연, 융합전자공학부 3학년
+- 박현우, 컴퓨터소프트웨어학부 3학년
+- 서지민, 융합전자공학부 3학년
+- 이중원, 융합전자공학부 3학년
