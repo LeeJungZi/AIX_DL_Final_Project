@@ -1,4 +1,4 @@
-# AI+X:DL Final Project
+# MUSDB18 dataset을 이용한 음원 분리 모델 구현
 
 ## Members
 - 김모연, 융합전자공학부 3학년
