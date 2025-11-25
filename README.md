@@ -38,7 +38,9 @@ input: test_mp4 폴더 내의 mp4 포맷 mixture 음원 (모델이 처음 보는
 아키텍처: CNN 기반 U-Net Toy Model (경량화 모델)
 source: MUSDB18 표준 데이터셋
 전략: 긴 음원 3초 Random Chunk로 샘플링, 전곡 학습 후 시간 측정
+
 ![Training Loss Graph and Spectrogram Visualization](images/U-net_1.png)
+
 ![Training Loss Graph and Spectrogram Visualization](images/U-net_2.png)
 
 초기 문제점 (MP4 사용 시): MUSDB18 표준 데이터셋의 MP4 포맷 사용 시, CPU bottleneck 현상(1 epoch에 약 70초 소요), Loss 발산 현상 발생
@@ -48,20 +50,26 @@ source: MUSDB18 표준 데이터셋
 ### 2. 데이터 스케일링 및 성능 정량 평가
 
 학습 1차 – 음원 5곡 + 50epoch
+
 ![Model Estimation](images/1_5곡_50epoch_1.png)
+
 ![Model Estimation](images/1_5곡_50epoch_2.png)
 
 결과 : 초기 모델 구동 확인. 데이터 부족으로 분리 성능 미흡.
 
 학습 2차 – 음원 10곡 + 100epoch
+
 ![Model Estimation](images/2_10곡_100epoch_1.png)
+
 ![Model Estimation](images/2_10곡_100epoch_2.png)
 
 결과 : Loss 감소 확인, 학습 진전 확인.
 
  
 학습 3차 – 학습 음원 20곡 + 200epoch
+
 ![Model Estimation](images/3_20곡_200epoch_1.png)
+
 ![Model Estimation](images/3_20곡_200epoch_2.png)
 
 결과 : 최종 Loss가 0.3대까지 안정적으로 수렴, 학습 유효성 입증 (총 46분 소요)
