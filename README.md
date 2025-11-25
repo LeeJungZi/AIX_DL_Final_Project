@@ -77,7 +77,6 @@ source: MUSDB18 표준 데이터셋
 
 결과 : Loss 감소 확인, 학습 진전 확인.
 
- 
 학습 3차 – 학습 음원 20곡 + 200epoch
 
 ![Model Estimation](images/3_20곡_200epoch_1.png)
