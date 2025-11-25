@@ -52,7 +52,6 @@ source: MUSDB18 표준 데이터셋
 학습 1차 – 음원 5곡 + 50epoch
 
 ![Model Estimation](images/1_5곡_50epoch_1.png)
-
 ![Model Estimation](images/1_5곡_50epoch_2.png)
 
 결과 : 초기 모델 구동 확인. 데이터 부족으로 분리 성능 미흡.
@@ -60,7 +59,6 @@ source: MUSDB18 표준 데이터셋
 학습 2차 – 음원 10곡 + 100epoch
 
 ![Model Estimation](images/2_10곡_100epoch_1.png)
-
 ![Model Estimation](images/2_10곡_100epoch_2.png)
 
 결과 : Loss 감소 확인, 학습 진전 확인.
@@ -69,7 +67,6 @@ source: MUSDB18 표준 데이터셋
 학습 3차 – 학습 음원 20곡 + 200epoch
 
 ![Model Estimation](images/3_20곡_200epoch_1.png)
-
 ![Model Estimation](images/3_20곡_200epoch_2.png)
 
 결과 : 최종 Loss가 0.3대까지 안정적으로 수렴, 학습 유효성 입증 (총 46분 소요)
