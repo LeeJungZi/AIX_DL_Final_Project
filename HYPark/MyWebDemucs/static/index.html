@@ -8,7 +8,7 @@
         body { font-family: 'Segoe UI', sans-serif; text-align: center; padding: 20px; background-color: #121212; color: #e0e0e0; }
         .container { background: #1e1e1e; padding: 30px; border-radius: 15px; max-width: 800px; margin: auto; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
         h1 { color: #00d2ff; }
-        
+
         .upload-section { border: 2px dashed #444; padding: 20px; border-radius: 10px; margin-bottom: 20px; }
         .btn { background: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-size: 16px; transition: 0.2s; }
         .btn:hover:not(:disabled) { background: #0056b3; }
@@ -19,15 +19,15 @@
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
         /* 트랙 레이아웃 */
-        .track-row { 
-            background: #2c2c2c; margin: 15px 0; padding: 15px; border-radius: 10px; 
+        .track-row {
+            background: #2c2c2c; margin: 15px 0; padding: 15px; border-radius: 10px;
             display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
             border-left: 5px solid #555;
         }
         .track-info { flex: 1; text-align: left; min-width: 150px; }
         .track-name { font-size: 18px; font-weight: bold; display: block; margin-bottom: 5px; text-transform: uppercase;}
         .eq-controls { flex: 2; display: flex; gap: 15px; justify-content: center; min-width: 300px; }
-        
+
         /* 슬라이더 스타일 */
         .slider-group { text-align: center; }
         .slider-group label { display: block; font-size: 12px; color: #888; margin-bottom: 2px; }
@@ -35,7 +35,7 @@
         .val-display { font-size: 12px; font-weight: bold; color: #00d2ff; }
 
         audio { width: 100%; margin-top: 10px; height: 30px; }
-        
+
         .master-controls { margin-top: 20px; padding-top: 20px; border-top: 1px solid #444; }
         .btn-green { background: #28a745; }
         .btn-red { background: #dc3545; }
@@ -57,12 +57,12 @@
 
         <form id="upload-form" class="upload-section">
             <input type="file" id="audioFile" name="file" accept=".mp3, .wav, .ogg" required>
-            
+
             <div style="margin-top: 15px; text-align: left;">
                 <input type="checkbox" id="use-ai-eq" name="use_ai_eq" checked>
                 <label for="use-ai-eq" style="color: #bbb;">AI EQ 예측 사용 (MasteringAI)</label>
             </div>
-            
+
             <button type="submit" id="uploadBtn" class="btn" style="margin-top: 15px;">업로드 및 분석</button>
         </form>
 
@@ -77,7 +77,7 @@
 
     <script>
         const API_URL = '/upload';
-        
+
         const uploadForm = document.getElementById('upload-form');
         const audioFile = document.getElementById('audioFile');
         const uploadBtn = document.getElementById('uploadBtn');
@@ -94,7 +94,7 @@
         uploadForm.addEventListener('submit', async function(e) {
             e.preventDefault();
             const file = audioFile.files[0];
-            
+
             uploadBtn.disabled = true;
             statusDisplay.innerHTML = '<div class="spinner"></div> ⏳ 업로드 및 AI 분석 중... (오래 걸릴 수 있습니다)';
             mixerArea.style.display = 'none';
@@ -127,20 +127,20 @@
 
         function initMixer(data) {
             tracksContainer.innerHTML = "";
-            
+
             // Web Audio API 시작
             if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            
+
             // Web Audio API는 트랙별로 한 번씩만 설정해야 합니다.
             tracks.length = 0;
 
             const stems = ['vocals', 'drums', 'bass', 'other'];
-            
+
             stems.forEach(stem => {
                 if (!data.urls[stem]) return;
 
                 const eqVals = data.eq_info[stem] || { low: 0, mid: 0, high: 0 };
-                
+
                 // 1. HTML UI 생성
                 const div = document.createElement('div');
                 div.className = `track-row t-${stem}`;
@@ -170,7 +170,7 @@
             return `
                 <div class="slider-group">
                     <label>${label}</label>
-                    <input type="range" id="sl-${stem}-${band}" min="-15" max="15" step="0.1" value="${displayVal}" 
+                    <input type="range" id="sl-${stem}-${band}" min="-15" max="15" step="0.1" value="${displayVal}"
                         oninput="updateEQ('${stem}', '${band}', this.value)">
                     <div class="val-display" id="val-${stem}-${band}">${displayVal}dB</div>
                 </div>
@@ -179,7 +179,7 @@
 
         function setupAudioNodes(stem, initialEq) {
             const audioEl = document.getElementById(`audio-${stem}`);
-            
+
             // 미디어 소스 생성
             const source = audioCtx.createMediaElementSource(audioEl);
 
@@ -192,7 +192,7 @@
             const midFilter = audioCtx.createBiquadFilter();
             midFilter.type = "peaking";
             midFilter.frequency.value = 1000;
-            midFilter.Q.value = 1.0; 
+            midFilter.Q.value = 1.0;
             midFilter.gain.value = initialEq.mid;
 
             const highFilter = audioCtx.createBiquadFilter();
@@ -208,7 +208,7 @@
 
             // 참조 저장 (나중에 업데이트용)
             tracks[stem] = { low: lowFilter, mid: midFilter, high: highFilter };
-            
+
             // 오디오 재생 시 AudioContext가 suspended 상태면 깨워줌
             audioEl.onplay = () => { if (audioCtx.state === 'suspended') audioCtx.resume(); };
         }
@@ -220,7 +220,7 @@
             const floatVal = parseFloat(value);
             // 화면 숫자 업데이트
             document.getElementById(`val-${stem}-${band}`).innerText = floatVal.toFixed(1) + "dB";
-            
+
             // 실제 오디오 필터 업데이트
             if (tracks[stem]) {
                 tracks[stem][band].gain.value = floatVal;
@@ -229,7 +229,7 @@
 
         window.playAll = function() {
             // 재생 시 AudioContext resume 보장
-            if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume(); 
+            if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
             document.querySelectorAll('audio').forEach(a => { a.currentTime = 0; a.play(); });
         };
         window.stopAll = function() {
