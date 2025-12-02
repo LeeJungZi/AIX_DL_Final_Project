@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 스마트 믹서</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; text-align: center; padding: 20px; background-color: #121212; color: #e0e0e0; }
+        .container { background: #1e1e1e; padding: 30px; border-radius: 15px; max-width: 800px; margin: auto; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        h1 { color: #00d2ff; margin-bottom: 5px; }
+        .subtitle { color: #888; font-size: 14px; margin-bottom: 25px; }
+        
+        .upload-section { border: 2px dashed #444; padding: 20px; border-radius: 10px; margin-bottom: 20px; transition: 0.3s; }
+        .upload-section:hover { border-color: #00d2ff; }
+        
+        button { background: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-size: 16px; transition: 0.2s; }
+        button:hover { background: #0056b3; }
+        button:disabled { background: #444; cursor: not-allowed; }
+
+        .genre-badge { display: inline-block; background: linear-gradient(45deg, #ff00cc, #333399); color: white; padding: 5px 15px; border-radius: 20px; font-weight: bold; font-size: 14px; margin-top: 10px; box-shadow: 0 0 10px rgba(255, 0, 204, 0.5); }
+
+        .track-row { background: #2c2c2c; margin: 15px 0; padding: 15px; border-radius: 10px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; border-left: 5px solid #555; }
+        .track-info { flex: 1; text-align: left; min-width: 150px; }
+        .track-name { font-size: 18px; font-weight: bold; display: block; margin-bottom: 5px; text-transform: uppercase;}
+        .eq-controls { flex: 2; display: flex; gap: 15px; justify-content: center; min-width: 300px; }
+        
+        .slider-group { text-align: center; }
+        .slider-group label { display: block; font-size: 12px; color: #888; margin-bottom: 2px; }
+        input[type=range] { width: 80px; accent-color: #00d2ff; cursor: pointer; }
+        .val-display { font-size: 12px; font-weight: bold; color: #00d2ff; }
+
+        audio { width: 100%; margin-top: 10px; height: 30px; }
+        
+        .master-controls { margin-top: 20px; padding-top: 20px; border-top: 1px solid #444; display: flex; justify-content: center; gap: 10px; }
+        .btn-green { background: #28a745; }
+        .btn-red { background: #dc3545; }
+        .btn-blue { background: #00d2ff; color: #121212; font-weight: bold; }
+
+        .t-vocals { border-color: #ff6b6b; color: #ff6b6b; }
+        .t-drums { border-color: #4ecdc4; color: #4ecdc4; }
+        .t-bass { border-color: #ffe66d; color: #ffe66d; }
+        .t-other { border-color: #1a535c; color: #1a535c; }
+        
+        .section-divider { margin-top: 30px; padding: 15px; border-top: 1px solid #ccc; }
+        
+        /* 차트 컨테이너 스타일 */
+        #chart-container {
+            background: #2c2c2c;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            height: 300px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎛️ AI 스마트 믹서</h1>
+        <p class="subtitle">AI 기반 음원 분리, 장르 분석, EQ 마스터링</p>
+
+        <div class="upload-section">
+            <input type="file" id="audioFile" accept=".mp3, .wav">
+            <button onclick="startProcess()" id="uploadBtn">업로드 및 분석 시작</button>
+            <div id="status" style="margin-top: 15px; font-weight: bold; color: #ffcc00;"></div>
+            <div id="genre-area" style="display: none; margin-top: 10px;">
+                <span class="genre-badge" id="genre-text">Genre: Unknown</span>
+            </div>
+        </div>
+
+        <div id="mixer-area" style="display: none;">
+            <div class="master-controls">
+                <button class="btn-green" onclick="playAll()">▶ 전체 재생</button>
+                <button class="btn-red" onclick="stopAll()">⏹ 전체 정지</button>
+                <button class="btn-blue" onclick="downloadFullMix()">💾 전체 믹스(EQ적용) 다운로드</button>
+            </div>
+            
+            <div id="tracks-container"></div>
+
+            <div class="section-divider" id="feature-section">
+                <h3>Audio Feature Analysis</h3>
+                <p>업로드한 원본 곡의 주요 음향 특성을 시각화합니다.</p>
+                <button id="btn-show-chart" onclick="toggleChart()" style="background-color: #9933cc;">
+                    📊 곡 특성 분석 (Click)
+                </button>
+                
+                <div id="chart-wrapper" style="display: none;">
+                    <div id="chart-container">
+                        <canvas id="featureChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        let audioCtx;
+        const tracks = {}; 
+        let currentTaskId = null;
+        let currentTrackName = "";
+        let currentFeatures = null;
+        let myChart = null;
+
+        async function startProcess() {
+            const file = document.getElementById('audioFile').files[0];
+            if (!file) { alert("파일을 선택하세요!"); return; }
+            
+            const btn = document.getElementById('uploadBtn');
+            const status = document.getElementById('status');
+            const genreArea = document.getElementById('genre-area');
+            
+            btn.disabled = true;
+            status.innerText = "⏳ AI가 음악을 분석하고 분리 중입니다...";
+            genreArea.style.display = 'none';
+            document.getElementById('mixer-area').style.display = 'none';
+
+            const formData = new FormData();
+            formData.append("file", file);
+
+            try {
+                const res = await fetch('/upload', { method: 'POST', body: formData });
+                const data = await res.json();
+
+                if (res.ok) {
+                    status.innerText = "✅ 분석 완료! 아래에서 결과를 확인하세요.";
+                    document.getElementById('mixer-area').style.display = 'block';
+                    
+                    const sampleUrl = Object.values(data.urls)[0];
+                    currentTaskId = sampleUrl.split('/')[2]; 
+                    currentTrackName = data.track_name;
+                    currentFeatures = data.features;
+
+                    if (data.genre) {
+                        document.getElementById('genre-text').innerText = "🎵 Detected Genre: " + data.genre;
+                        genreArea.style.display = 'block';
+                    }
+                    
+                    document.getElementById('chart-wrapper').style.display = 'none';
+                    document.getElementById('btn-show-chart').innerText = "📊 곡 특성 분석 (Click)";
+
+                    initMixer(data);
+                } else {
+                    status.innerText = "❌ 에러: " + JSON.stringify(data);
+                }
+            } catch (e) {
+                console.error(e);
+                status.innerText = "❌ 서버 통신 오류";
+            } finally {
+                btn.disabled = false;
+            }
+        }
+
+        function toggleChart() {
+            const wrapper = document.getElementById('chart-wrapper');
+            const btn = document.getElementById('btn-show-chart');
+            
+            if (wrapper.style.display === 'none') {
+                wrapper.style.display = 'block';
+                btn.innerText = "📊 차트 접기";
+                renderFeatureChart();
+            } else {
+                wrapper.style.display = 'none';
+                btn.innerText = "📊 곡 특성 분석 (Click)";
+            }
+        }
+
+        function renderFeatureChart() {
+            if (!currentFeatures) { alert("분석된 데이터가 없습니다."); return; }
+            const ctx = document.getElementById('featureChart').getContext('2d');
+            if (myChart) { myChart.destroy(); }
+
+            const labels = Object.keys(currentFeatures);
+            const data = Object.values(currentFeatures);
+
+            myChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Feature Score (Relative 0-100)',
+                        data: data,
+                        backgroundColor: ['rgba(255, 99, 132, 0.7)', 'rgba(54, 162, 235, 0.7)', 'rgba(255, 206, 86, 0.7)', 'rgba(75, 192, 192, 0.7)', 'rgba(153, 102, 255, 0.7)'],
+                        borderColor: ['rgba(255, 99, 132, 1)', 'rgba(54, 162, 235, 1)', 'rgba(255, 206, 86, 1)', 'rgba(75, 192, 192, 1)', 'rgba(153, 102, 255, 1)'],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { beginAtZero: true, max: 100, grid: { color: '#444' }, ticks: { color: '#e0e0e0' } },
+                        x: { grid: { display: false }, ticks: { color: '#e0e0e0' } }
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        title: { display: true, text: `Audio Features of "${currentTrackName}"`, color: '#00d2ff', font: { size: 16 } }
+                    }
+                }
+            });
+        }
+
+        function initMixer(data) {
+            const container = document.getElementById('tracks-container');
+            container.innerHTML = ""; 
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            const stems = ['vocals', 'drums', 'bass', 'other'];
+            stems.forEach(stem => {
+                if (!data.urls[stem]) return;
+                const eqVals = data.eq_info[stem] || { low: 0, mid: 0, high: 0 };
+                const fileUrl = data.urls[stem];
+                const div = document.createElement('div');
+                div.className = `track-row t-${stem}`;
+                div.innerHTML = `
+                    <div class="track-info">
+                        <span class="track-name">${stem}</span>
+                        <small>AI EQ: L:${eqVals.low} / M:${eqVals.mid} / H:${eqVals.high}</small>
+                        <div style="margin-top: 10px; display: flex; gap: 5px;">
+                            <a href="${fileUrl}" download="${stem}_original.wav" style="text-decoration:none; background:#444; color:white; padding:5px 8px; border-radius:4px; font-size:12px;">💾 원본</a>
+                            <button onclick="downloadEqStem('${stem}', '${fileUrl}')" style="background:#00d2ff; color:#121212; border:none; padding:5px 8px; border-radius:4px; font-size:12px; cursor:pointer;">🎛️ EQ 적용 다운</button>
+                        </div>
+                    </div>
+                    <div class="eq-controls">
+                        ${createSliderHTML(stem, 'low', 'Low', eqVals.low)}
+                        ${createSliderHTML(stem, 'mid', 'Mid', eqVals.mid)}
+                        ${createSliderHTML(stem, 'high', 'High', eqVals.high)}
+                    </div>
+                    <audio id="audio-${stem}" src="${fileUrl}" controls crossOrigin="anonymous"></audio>
+                `;
+                container.appendChild(div);
+                setupAudioNodes(stem, eqVals);
+            });
+        }
+
+        function createSliderHTML(stem, band, label, val) {
+            return `<div class="slider-group"><label>${label}</label><input type="range" id="sl-${stem}-${band}" min="-15" max="15" step="0.1" value="${val}" oninput="updateEQ('${stem}', '${band}', this.value)"><div class="val-display" id="val-${stem}-${band}">${val}dB</div></div>`;
+        }
+
+        function setupAudioNodes(stem, initialEq) {
+            const audioEl = document.getElementById(`audio-${stem}`);
+            const source = audioCtx.createMediaElementSource(audioEl);
+            const lowFilter = audioCtx.createBiquadFilter(); lowFilter.type = "lowshelf"; lowFilter.frequency.value = 100; lowFilter.gain.value = initialEq.low;
+            const midFilter = audioCtx.createBiquadFilter(); midFilter.type = "peaking"; midFilter.frequency.value = 1000; midFilter.Q.value = 1.0; midFilter.gain.value = initialEq.mid;
+            const highFilter = audioCtx.createBiquadFilter(); highFilter.type = "highshelf"; highFilter.frequency.value = 10000; highFilter.gain.value = initialEq.high;
+            source.connect(lowFilter); lowFilter.connect(midFilter); midFilter.connect(highFilter); highFilter.connect(audioCtx.destination);
+            tracks[stem] = { low: lowFilter, mid: midFilter, high: highFilter };
+            audioEl.onplay = () => { if (audioCtx.state === 'suspended') audioCtx.resume(); };
+        }
+
+        window.updateEQ = function(stem, band, value) {
+            document.getElementById(`val-${stem}-${band}`).innerText = value + "dB";
+            if (tracks[stem]) tracks[stem][band].gain.value = parseFloat(value);
+        };
+
+        window.playAll = function() { document.querySelectorAll('audio').forEach(a => { a.currentTime = 0; a.play(); }); };
+        window.stopAll = function() { document.querySelectorAll('audio').forEach(a => { a.pause(); a.currentTime = 0; }); };
+
+        async function downloadEqStem(stem, url) {
+            const btn = event.target; const originalText = btn.innerText; btn.innerText = "⏳..."; btn.disabled = true;
+            try {
+                const low = parseFloat(document.getElementById(`sl-${stem}-low`).value);
+                const mid = parseFloat(document.getElementById(`sl-${stem}-mid`).value);
+                const high = parseFloat(document.getElementById(`sl-${stem}-high`).value);
+                const blob = await renderAudio(url, low, mid, high);
+                triggerDownload(blob, `${stem}_eq_applied.wav`);
+                btn.innerText = "✅";
+            } catch (e) { console.error(e); alert("Error"); btn.innerText = "❌"; } finally { setTimeout(() => { btn.innerText = originalText; btn.disabled = false; }, 2000); }
+        }
+
+        window.downloadFullMix = async function() {
+            const btn = event.target; const originalText = btn.innerText; btn.innerText = "⏳ 믹싱 중..."; btn.disabled = true;
+            try {
+                const stems = ['vocals', 'drums', 'bass', 'other']; const bufferList = []; let maxLen = 0; let sr = 44100;
+                for (const stem of stems) {
+                    const audioEl = document.getElementById(`audio-${stem}`); if (!audioEl) continue;
+                    const response = await fetch(audioEl.src); const ab = await audioCtx.decodeAudioData(await response.arrayBuffer());
+                    const low = parseFloat(document.getElementById(`sl-${stem}-low`).value); const mid = parseFloat(document.getElementById(`sl-${stem}-mid`).value); const high = parseFloat(document.getElementById(`sl-${stem}-high`).value);
+                    bufferList.push({ buffer: ab, low, mid, high }); if (ab.length > maxLen) maxLen = ab.length; sr = ab.sampleRate;
+                }
+                if (bufferList.length === 0) return;
+                const offlineCtx = new OfflineAudioContext(2, maxLen, sr);
+                bufferList.forEach(item => {
+                    const source = offlineCtx.createBufferSource(); source.buffer = item.buffer;
+                    const lf = offlineCtx.createBiquadFilter(); lf.type = "lowshelf"; lf.frequency.value = 100; lf.gain.value = item.low;
+                    const mf = offlineCtx.createBiquadFilter(); mf.type = "peaking"; mf.frequency.value = 1000; mf.Q.value = 1.0; mf.gain.value = item.mid;
+                    const hf = offlineCtx.createBiquadFilter(); hf.type = "highshelf"; hf.frequency.value = 10000; hf.gain.value = item.high;
+                    source.connect(lf); lf.connect(mf); mf.connect(hf); hf.connect(offlineCtx.destination); source.start(0);
+                });
+                const renderedBuffer = await offlineCtx.startRendering();
+                const blob = bufferToWave(renderedBuffer, renderedBuffer.length);
+                triggerDownload(blob, "Full_Mix_EQ_Applied.wav");
+                btn.innerText = "✅ 완료!";
+            } catch (e) { console.error(e); alert("Mixing Error"); btn.innerText = "❌ 실패"; } finally { setTimeout(() => { btn.innerText = originalText; btn.disabled = false; }, 2000); }
+        };
+
+        async function renderAudio(url, l, m, h) {
+            const response = await fetch(url); const audioBuffer = await audioCtx.decodeAudioData(await response.arrayBuffer());
+            const offlineCtx = new OfflineAudioContext(audioBuffer.numberOfChannels, audioBuffer.length, audioBuffer.sampleRate);
+            const source = offlineCtx.createBufferSource(); source.buffer = audioBuffer;
+            const lf = offlineCtx.createBiquadFilter(); lf.type = "lowshelf"; lf.frequency.value = 100; lf.gain.value = l;
+            const mf = offlineCtx.createBiquadFilter(); mf.type = "peaking"; mf.frequency.value = 1000; mf.Q.value = 1.0; mf.gain.value = m;
+            const hf = offlineCtx.createBiquadFilter(); hf.type = "highshelf"; hf.frequency.value = 10000; hf.gain.value = h;
+            source.connect(lf); lf.connect(mf); mf.connect(hf); hf.connect(offlineCtx.destination); source.start(0);
+            const rendered = await offlineCtx.startRendering(); return bufferToWave(rendered, rendered.length);
+        }
+
+        function triggerDownload(blob, filename) { const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = filename; link.click(); }
+        function bufferToWave(abuffer, len) {
+            let numOfChan = abuffer.numberOfChannels, length = len * numOfChan * 2 + 44, buffer = new ArrayBuffer(length), view = new DataView(buffer), channels = [], i, sample, offset = 0, pos = 0;
+            setUint32(0x46464952); setUint32(length - 8); setUint32(0x45564157); setUint32(0x20746d66); setUint32(16); setUint16(1); setUint16(numOfChan); setUint32(abuffer.sampleRate); setUint32(abuffer.sampleRate * 2 * numOfChan); setUint16(numOfChan * 2); setUint16(16); setUint32(0x61746164); setUint32(length - pos - 40);
+            for (i = 0; i < abuffer.numberOfChannels; i++) channels.push(abuffer.getChannelData(i));
+            while (pos < len) { for (i = 0; i < numOfChan; i++) { sample = Math.max(-1, Math.min(1, channels[i][pos])); sample = (0.5 + sample < 0 ? sample * 32768 : sample * 32767) | 0; view.setInt16(44 + offset, sample, true); offset += 2; } pos++; }
+            return new Blob([buffer], { type: "audio/wav" });
+            function setUint16(data) { view.setUint16(pos, data, true); pos += 2; } function setUint32(data) { view.setUint32(pos, data, true); pos += 4; }
+        }
+    </script>
+</body>
+</html>
