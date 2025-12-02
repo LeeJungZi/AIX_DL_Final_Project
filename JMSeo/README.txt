@@ -16,3 +16,8 @@ pip install demucs
 2. Model Setup
 
 (1) Pre-trained Models
+model folder 안에 checkpoint.th downlaoad
+https://drive.google.com/file/d/1Vl-ho7_D4SKmqaCp8b8I7XisicKblUPA/view?usp=sharing
+
+conda env create -f environment-cuda.yml
+conda env create -f environment-cpu.yml
