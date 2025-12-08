@@ -1,78 +1,106 @@
+Download all files provided in github repository
+a. Create Folder: Project
+b. Create Folder: Model
+c. Create Folder: Static
+
+Add index.html → Static
+Add model2_mastering.pth → Model
+
 1. Settings
 
-(1) FFmpeg
-Windows (PowerShell): winget install Gyan.FFmpeg
-macOS (Terminal): brew install ffmpeg
-Linux: sudo apt install ffmpeg
+(1) FFmpeg for Mac M1
+  brew install ffmpeg
 
-(2) Conda Environment
+(2) Conda Environment (NO YAML FILES)
   conda create -n demucs python=3.10
   conda activate demucs
 
-(2) Libraries  
+(3) Required Libraries (Final working versions)
+PyTorch CPU builds for Mac M1
+
   pip install torch==2.1.0 torchaudio==2.1.0 torchvision==0.16.0 --index-url https://download.pytorch.org/whl/cpu
+
+Web server
   pip install fastapi uvicorn python-multipart aiofiles
+
+Audio + ML dependencies
   pip install librosa soundfile numpy pandas scikit-learn joblib
+
+TensorFlow (only version that works on M1)
   pip install tensorflow==2.13.1
+
+Demucs (CPU mode only)
   pip install demucs
+
+NOTE:
+You DO NOT use environment-cuda.yml or environment-cpu.yml.
+M1 cannot use CUDA and the YAML breaks your environment.
 
 
 2. Model Setup
 
 (1) Pre-trained Models
-model folder 안에 checkpoint.th download
+
+Download checkpoint.th:
 https://drive.google.com/file/d/1Vl-ho7_D4SKmqaCp8b8I7XisicKblUPA/view?usp=sharing
 
-then, in terminal:
-  conda env create -f environment-cuda.yml
-  conda env create -f environment-cpu.yml
+Place it in:
+Project/model/
 
-(2) Dataset (for genre analysis)
-프로젝트 루트에 data/genres_original 폴더를 생성
+NO conda env create -f environment-cuda.yml
+NO conda env create -f environment-cpu.yml
 
-GTZAN 데이터셋 다운로드 링크(Kaggle)에서 데이터를 다운 (1.2GB)
+(Removed because they break M1.)
+
+(2) Dataset (For Genre Model Training — optional)
+
+Create folder:
+data/genres_original
+
+Download GTZAN dataset (1.2GB):
 https://www.kaggle.com/datasets/andradaolteanu/gtzan-dataset-music-genre-classification
 
-download as zip file and extract to data folder
+Unzip into:
+data/genres_original/
 
-오디오 특징 추출 및 모델 학습
-run in terminal:
+Extract features:
   python extract_features.py
+
+Train genre model:
   python train_genre.py
 
-생성된 아래 3개 파일을 model/ 폴더로 이동
+Move generated 3 files to /model:
 genre_model.h5
 genre_scaler.pkl
 genre_encoder.pkl
 
 
-3. Check Final Structure of Folder
-
+3. Folder Structure (Final)
 Project_Root/
 │
-├── main.py                 # 메인 실행 파일
-├── extract_features.py     # 장르 특징 추출 코드
-├── train_genre.py          # 장르 모델 학습 코드
-├── data.csv     # 장르 분석 보조 데이터
+├── main.py
+├── extract_features.py
+├── train_genre.py
+├── data.csv
 │
-├── model/                  # [필수] 모델 파일 5개가 여기 있어야 함
+├── model/
 │   ├── checkpoint.th
 │   ├── model2_mastering.pth
 │   ├── genre_model.h5
 │   ├── genre_scaler.pkl
 │   └── genre_encoder.pkl
 │
-├── data/                   # 장르 학습용 데이터
+├── data/
 │   └── genres_original/ ...
 │
-├── static/                 # 웹페이지 파일
+├── static/
 │   └── index.html
 │
-└── static_results/         # (자동 생성됨) 결과물 저장소
-
+└── static_results/        # auto-generated at runtime
 
 4. Run
+  python main.py
 
-python main.py
 
-브라우저 주소창에 http://127.0.0.1:8000 입력하여 접속
+Open browser:
+http://127.0.0.1:8000
