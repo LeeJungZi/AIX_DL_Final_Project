@@ -20,17 +20,19 @@ PyTorch CPU builds for Mac M1
 
   pip install torch==2.1.0 torchaudio==2.1.0 torchvision==0.16.0 --index-url https://download.pytorch.org/whl/cpu
 
-Web server
-  pip install fastapi uvicorn python-multipart aiofiles
-
-Audio + ML dependencies
-  pip install librosa soundfile numpy pandas scikit-learn joblib
-
-TensorFlow (only version that works on M1)
-  pip install tensorflow==2.13.1
-
 Demucs (CPU mode only)
   pip install demucs
+
+Web server
+  pip install fastapi==0.109.2 uvicorn==0.29.0 python-multipart aiofiles
+  pip install pydantic==2.6.0 pydantic-core==2.16.3
+  pip install typing_extensions==4.15.0
+
+
+Audio + ML dependencies
+  pip install librosa==0.10.1
+  pip install soundfile numpy pandas scikit-learn joblib
+
 
 NOTE:
 You DO NOT use environment-cuda.yml or environment-cpu.yml.
