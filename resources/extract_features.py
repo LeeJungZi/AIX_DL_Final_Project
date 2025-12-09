@@ -1,4 +1,3 @@
-# extract_features.py
 import librosa
 import pandas as pd
 import numpy as np
@@ -10,8 +9,8 @@ import warnings
 # Suppress warnings
 warnings.filterwarnings('ignore')
 
-# [Configuration]
-DATASET_PATH = './data/genres_original' # Folder containing genre subfolders
+# Configuration
+DATASET_PATH = './data/genres_original' 
 OUTPUT_CSV = 'data.csv'
 
 # Header for CSV file
@@ -43,16 +42,19 @@ for g in genres:
         try:
             y, sr = librosa.load(songname, mono=True, duration=30)
             
-            # Extract features (Based on your screenshot)
+            # [Feature Extraction] Extract Audio Features for Input Vector
+            # Spectral Features: Chroma, Centroid, Bandwidth, Rolloff
             chroma_stft = librosa.feature.chroma_stft(y=y, sr=sr)
             rmse = librosa.feature.rms(y=y)
             spec_cent = librosa.feature.spectral_centroid(y=y, sr=sr)
             spec_bw = librosa.feature.spectral_bandwidth(y=y, sr=sr)
             rolloff = librosa.feature.spectral_rolloff(y=y, sr=sr)
+            # Time-domain Feature: Zero Crossing Rate
             zcr = librosa.feature.zero_crossing_rate(y)
+            # Perceptual Features: MFCCs
             mfcc = librosa.feature.mfcc(y=y, sr=sr)
             
-            # Prepare row data (mean values)
+            # Prepare row data (calculate mean)
             to_append = f'{filename} {np.mean(chroma_stft)} {np.mean(rmse)} {np.mean(spec_cent)} {np.mean(spec_bw)} {np.mean(rolloff)} {np.mean(zcr)}'    
             
             for e in mfcc:
