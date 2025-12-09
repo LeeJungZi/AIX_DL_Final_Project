@@ -5,17 +5,17 @@ import seaborn as sns
 from sklearn.preprocessing import StandardScaler
 from sklearn.decomposition import PCA
 
-# 1. 데이터 로드 (분석할 CSV 파일명 확인)
+# 1. Load Data
 CSV_FILE = 'musdb_data.csv' 
 try:
     df = pd.read_csv(CSV_FILE)
-    print(f"✅ {CSV_FILE} 로드 성공! (총 {len(df)}곡)")
+    print(f"✅ Loaded {CSV_FILE} (Total {len(df)} tracks)")
 except FileNotFoundError:
-    print(f"❌ 파일을 찾을 수 없습니다: {CSV_FILE}")
-    print("create_musdb_csv.py를 먼저 실행했는지 확인해주세요.")
+    print(f"❌ File not found: {CSV_FILE}")
+    print("Run create_musdb_csv.py first.")
     exit()
 
-# 불필요한 컬럼 제거
+# Drop unnecessary columns
 if 'filename' in df.columns:
     df_features = df.drop(['filename', 'label'], axis=1)
 else:
@@ -23,7 +23,7 @@ else:
 
 labels = df['label']
 
-# 2. 직관적인 이름으로 컬럼 변경 (시각화용)
+# 2. Rename columns for intuitive visualization
 feature_rename_map = {
     'chroma_stft': 'Harmony',
     'rmse': 'Energy',
@@ -33,12 +33,13 @@ feature_rename_map = {
     'zero_crossing_rate': 'Noisiness'
 }
 
-# 3. 데이터 정규화 (스케일링)
+# 3. Data Scaling
+# [Preprocessing] Standardize features for PCA and Comparison
 scaler = StandardScaler()
 scaled_features = scaler.fit_transform(df_features)
 
 # ==========================================
-# [시각화 1] 장르 분포 (Genre Distribution)
+# [Visualization 1] Genre Distribution
 # ==========================================
 plt.figure(figsize=(10, 6))
 sns.countplot(y=labels, palette="viridis", order=labels.value_counts().index)
@@ -50,23 +51,18 @@ plt.tight_layout()
 plt.show()
 
 # ==========================================
-# [시각화 2] 피처별 평균값 비교 (Feature Bar Chart)
+# [Visualization 2] Feature Bar Chart
 # ==========================================
-# 이름 변경 적용
 df_renamed = df_features.rename(columns=feature_rename_map)
 
-# 변경된 이름으로 스케일링 다시 수행 (데이터프레임 생성용)
 scaled_features_renamed = scaler.fit_transform(df_renamed)
 df_scaled = pd.DataFrame(scaled_features_renamed, columns=df_renamed.columns)
 df_scaled['label'] = labels
 
-# 장르별 평균 계산
 feature_means = df_scaled.groupby('label').mean()
 
-# 보고 싶은 주요 피처만 선택 (직관적인 이름들)
 selected_features = list(feature_rename_map.values())
 
-# 그래프 그리기
 ax = feature_means[selected_features].plot(kind='bar', figsize=(14, 8), width=0.8, colormap='viridis')
 
 plt.title('Average Audio Characteristics by Genre', fontsize=16, fontweight='bold')
@@ -79,15 +75,14 @@ plt.tight_layout()
 plt.show()
 
 # ==========================================
-# [시각화 3] PCA 분석 (2D Projection)
+# [Visualization 3] PCA Analysis (2D Projection)
 # ==========================================
-# 2차원으로 차원 축소
+# [Dimensionality Reduction] PCA to 2 components for visualization
 pca = PCA(n_components=2)
 principal_components = pca.fit_transform(scaled_features)
 pca_df = pd.DataFrame(data=principal_components, columns=['PC1', 'PC2'])
 pca_df['Genre'] = labels.values
 
-# 설명력 계산
 var_ratio = pca.explained_variance_ratio_
 
 plt.figure(figsize=(12, 10))
