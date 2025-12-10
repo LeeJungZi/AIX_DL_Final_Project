@@ -34,9 +34,7 @@
 
 #### 1. MUSDB18-HQ
 
-Source: [SigSep](https://zenodo.org/records/3338373)
-
-Size: 22.7 GB	
+Source: [SigSep](https://zenodo.org/records/3338373) (22.7 GB)
 
 Spec: 44.1 kHz, stereo	
 
@@ -54,7 +52,7 @@ Usage:
 
 #### 2. GTZAN Genre Collection
 
-Source: [Kaggle](https://www.kaggle.com/datasets/carlthome/gtzan-genre-collection)
+Source: [Kaggle](https://www.kaggle.com/datasets/carlthome/gtzan-genre-collection) (1.32 GB)
 
 Spec: 22.05 kHz, Mono, 30초 길이
 
@@ -281,7 +279,11 @@ Result: 시각화 결과, 데이터셋이 단일 클러스터에 국한되지 �
 
 ### C. 시스템 구현 결과 (System Implementation Result)
 
-<Web Interface>
+**< Web Interface >**
+
+<div align="center">
+  <img src="./images/webpage_demo.png" width="500">
+</div>
 
 Functionality: 
 
