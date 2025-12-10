@@ -19,12 +19,16 @@
 
 따라서 본 프로젝트의 최종 목표는 제한된 컴퓨팅 리소스 내에서 효율적인 모델(Conv-TasNet)을 학습시키고, 이를 커스텀 EQ 및 장르 분류 모델과 결합하여 상용 소프트웨어와 유사한 경험을 제공하는 자체 웹 인터페이스를 구현하는 것입니다.
 
+<br/>
+<br/>
 
 ## II. Dataset and Environment
 
 ### A. Problem Context
 
 음악은 서로 다른 소스에서 나온 여러 스템(Stem)이 겹쳐져 하나의 조화로운 파형을 형성합니다. 인간은 청각으로 이를 쉽게 구분하지만, 컴퓨터 입장에서는 섞여 있는 하나의 입력 신호일 뿐입니다. 이를 분리하기 위해서는 비선형적인 혼합 과정, 고차원 오디오 데이터 처리, 그리고 긴 시간적 의존성(Temporal Dependency)을 모델링해야 합니다. 이러한 시스템을 처음부터 학습시키는 것은 매우 높은 계산 비용을 요구합니다.
+
+<br/>
 
 ### B. Datasets
 
@@ -48,8 +52,6 @@ Usage:
 
 -	장르 프로파일링
 
- 
-
 #### 2. GTZAN Genre Collection
 
 Source: [Kaggle](https://www.kaggle.com/datasets/carlthome/gtzan-genre-collection)
@@ -64,6 +66,8 @@ Usage:
 
 -	MUSDB18-HQ 데이터셋의 장르 분포 분석(Cross-dataset profiling)
 
+<br/>
+<br/>
 
 ## III. Methodology
 저희 시스템의 핵심 분리 백엔드는 Conv-TasNet입니다. 초기에는 파형 기반의 SOTA 모델인 Demucs 학습을 시도했으나 리소스 한계로 중단하였고, 대신 Time-domain Convolution을 활용하여 적은 학습량으로도 효율적인 성능을 내는 Conv-TasNet을 최종 모델로 선정하여 구현했습니다. 여기에 직접 설계한 Auto-EQ(Custom CNN)와 GenreNet(Custom DNN)을 결합하였습니다.
@@ -102,6 +106,7 @@ Training Strategy: 단 1 Epoch 학습
 
 (Reasoning: 하드웨어 제약으로 인해 장시간 학습이 불가능했으나, Conv-TasNet은 1 Epoch만으로도 초기 Demucs 시도보다 나은 분리 성능과 압도적인 속도를 보여주어 추가 학습 없이 채택했습니다.)
 
+<br/>
 
 ### B. Auto Equalizer – 오디오 기반 보정 EQ 예측
 
@@ -129,6 +134,7 @@ Flatten 후 2개의 Linear Layer를 거쳐 최종적으로 3개의 값(Low, Mid,
 
 Performance: 평균 예측 오차(MAE) 약 3.32dB 달성.
 
+<br/>
 
 ### C. Genre Classification – Lightweight Audio GenreNet
 
@@ -148,15 +154,20 @@ Tech Spec: ReLU Activation, Dropout (0.2), Adam Optimizer, Sparse Categorical Cr
 
 단순한 구조임에도 데이터셋 프로파일링과 분류 작업에 충분한 성능을 보였습니다.
 
+<br/>
+
 ### D. Dataset Profiling
 
 MUSDB18-HQ에는 장르 레이블이 없으므로, 위에서 만든 GenreNet을 사용하여 Pseudo-labeling(가짜 라벨링)을 수행했습니다. 분석 결과, 해당 데이터셋은 클래식(Classical)과 레게(Reggae) 트랙 비중이 높았으며, 락/메탈 장르는 높은 에너지 지표를 보였습니다. 이는 분리 모델의 성능 편향(Bias)을 이해하는 중요한 단서가 되었습니다.
+
+<br/>
+<br/>
 
 ## IV. Evaluation & Analysis 
 
 ### A. Source Separation Evaluation (Conv-TasNet)
    
-Training Loss (MAE)
+#### Training Loss (MAE)
 
 Epoch 1: 하드웨어 한계로 인해 1 에포크만 가능했습니다.
 
@@ -164,7 +175,7 @@ Epoch 1: 하드웨어 한계로 인해 1 에포크만 가능했습니다.
 - Validation: 0.2354 (약 23.5% 오차)
 - Duration: ~20 hours
 
-#### Test Metrics (SDR, SIR, SAR, ISR):
+#### Test Metrics (SDR, SIR, SAR, ISR)
 
 $$\hat{s} = s_{\text{target}} + e_{\text{interf}} + e_{\text{artif}} + e_{\text{spat}}$$
 
@@ -197,31 +208,50 @@ $$
 (higher is better)
 </div>
 
-### B. Auto Equalizer & Genre Classification
+<br/>
+처음에 시도한 모델인 Demucs(v2)의 평균 SDR이 +6.3 dB인 것과 비교했을 때 부족한 성능이긴 하지만, 가벼운 모델인 Conv-Tasnet을 사용했다는 점, 첫번째 epoch으로 얻은 모델이라는 점을 고려하면 의미있는 수준으로 음원을 분리할 수 있다는 것을 확인할 수 있습니다.
 
-Auto-EQ: MSE Loss로 수렴하였으며, 테스트 셋에서 평균 3.3dB의 오차를 보여 사용자에게 유효한 EQ 프리셋을 추천할 수 있었습니다.
+<br/>
+
+### B. Auto Equalizer
+
+#### Training Loss (MSE)
+<div align="center">
+  <img src="./images/EQ_loss.png" width="500">
+</div>
+
+Training loss가 수렴하는 것을 확인할 수 있습니다.
+<br/>
+#### Test Metrics (MAE)
+<div align="center">
+  <img src="./images/EQ_test.png" width="500">
+</div>
  
-<Test loss graph> Metric = MAE
- 
-Average error: 3.3187 dB 
+Average error: 3.3187 dB
+
+low frequency 대역에서는 비교적 부정확한 예측을 보여주지만, 전반적으로 사용자에게 유효한 EQ 프리셋을 추천할 수 있음을 확인할 수 있습니다.
+
+<br/>
 
 ### C. 장르 분류 성능 (Genre Classification Performance)
    
-모델 검증 (GTZAN Testset)
+#### 1. 모델 검증 (GTZAN Testset)
+
+<div align="center">
+  <img src="./images/Genre_clustering.png" width="500">
+</div>
 
 Method: PCA (Principal Component Analysis)
 
-Result: 26-dimensional feature을 2D로 projecting했을 때,
+Result: 26-dimensional feature을 2D로 projecting했을 때, 클래식(Classical)이나 메탈(Metal)과 같이 강력한 음향적 정체성을 가진 장르들이 명확하게 군집화(Clustering)되는 것을 관찰했습니다.
 
-클래식(Classical)이나 메탈(Metal)과 같이 강력한 음향적 정체성을 가진 장르들이 명확하게 군집화(Clustering)되는 것을 관찰했습니다.
+#### 2. MUSDB18-HQ 프로파일링 결과 (확장 분석)
 
+**< Genre Distribution >**
 
-<사진>
-
-
-MUSDB18-HQ 프로파일링 결과 (확장 분석)
-
-<Genre Distribution>
+<div align="center">
+  <img src="./images/Genre_dist.png" width="500">
+</div>
 
 Analysis:
 
@@ -231,11 +261,11 @@ Implication:
 
 이는 소스 분리 모델이 이러한 장르의 전형적인 주파수 특성에 편향되었을 가능성을 시사합니다.
 
+**< Average Feature Analysis >**
 
-<사진>
-
-
-<Average Feature Analysis>
+<div align="center">
+  <img src="./images/Genre_feature.png" width="500">
+</div>
 
 Objective: 
 
@@ -245,12 +275,12 @@ Analysis:
 
 메탈과 락 트랙은 다른 장르에 비해 상대적으로 높은 에너지 값을 보였습니다.
 
- 
-<사진>
+**< Feature Space Visualization >**
 
+<div align="center">
+  <img src="./images/Genre_visual.png" width="500">
+</div>
 
-<Feature Space Visualization>
- 
 Method: 
 
 PCA projection on MUSDB18-HQ
@@ -259,9 +289,7 @@ Result:
 
 시각화 결과, 데이터셋이 단일 클러스터에 국한되지 않고 광범위한 음향 특징 공간(스펙트럼 공간)을 포괄하고 있음을 보여줍니다.
 
-
-<사진>
-
+<br/>
 
 ### C. 시스템 구현 결과 (System Implementation Result)
 
@@ -272,6 +300,9 @@ Functionality:
 - Drag & Drop 업로드, Multi-track Sliders (Volume/EQ), Genre Badge
 - 실시간 기능: Latency-free Mixing & Instant WAV Export (Full Mix / Stems)
 - Visualization: 입력 오디오의 특징(BPM, 에너지 등)을 정량적 차트로 표시합니다.
+
+<br/>
+<br/>
 
 ## V. Related Work
 
@@ -289,6 +320,9 @@ Functionality:
 
 6. Librosa & Audio Feature Engineering: Librosa는 MIR(Music Information Retrieval) 분야의 표준 파이썬 라이브러리입니다. 본 프로젝트에서 개발한 Custom EQ 예측 모델(CNN)과 장르 분류 모델의 입력 데이터 전처리 과정은 Librosa의 특징 추출 알고리즘에 전적으로 기반을 두고 있습니다. MFCC, Mel-Spectrogram 등의 특징 추출 기능은 저희 자체 모델이 오디오 데이터를 효과적으로 학습할 수 있는 기반을 제공했습니다.
 
+<br/>
+<br/>
+
 ## VI. Conclusion
 
 본 프로젝트는 음원 분리, 자동 이퀄라이제이션, 장르 분류라는 세 가지 오디오 처리 과제를 하나의 파이프라인으로 통합하는 과정을 탐구했습니다.
@@ -301,10 +335,12 @@ Demucs와 같은 거대 모델은 학생 환경에서 운용하기 어려웠으�
 
 최종적으로 이 모든 기능을 웹 인터페이스에 통합함으로써, 복잡한 딥러닝 모델을 사용자가 쉽게 다룰 수 있는 상호작용 도구로 변환했습니다. 비록 학습량의 한계로 인해 상용 소프트웨어 수준의 완벽한 분리도에는 미치지 못했을 수 있으나, 효율적인 모델 선정과 파이프라인 최적화를 통해 로컬 환경에서도 동작하는 All-in-One 오디오 처리 시스템을 성공적으로 구현했다는 점에 의의가 있습니다.
 
-시연 영상 : https://www.youtube.com/watch?v=-MjuxT47MOY
-
+<br/>
+<br/>
 
 ## Code @windows+RTX4060
+
+시연 영상 : https://www.youtube.com/watch?v=-MjuxT47MOY
 
 ### Env setting:
 
@@ -375,6 +411,7 @@ cd “MyWebDemucs folder path”
 python main.py
 ```
 go to http://localhost:8000
+
 <br/>
 <br/>
 
