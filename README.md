@@ -52,7 +52,7 @@ Usage:
 
 #### 2. GTZAN Genre Collection
 
-Source: [Kaggle](https://www.kaggle.com/datasets/andradaolteanu/gtzan-dataset-music-genre-classification) (1.32 GB)
+Source: [Kaggle](https://www.kaggle.com/datasets/andradaolteanu/gtzan-dataset-music-genre-classification) (1.41 GB)
 
 Spec: 22.05 kHz, Mono, 30초 길이
 
