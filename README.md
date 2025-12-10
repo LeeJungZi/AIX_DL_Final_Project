@@ -160,8 +160,8 @@ Training Loss (MAE)
 
 Epoch 1: 하드웨어 한계로 인해 1 에포크만 가능했습니다.
 
-- Train: 0.1561
-- Validation: 0.2354
+- Train: 0.1561 (약 15.6% 오차)
+- Validation: 0.2354 (약 23.5% 오차)
 - Duration: ~20 hours
 
 #### Test Metrics (SDR, SIR, SAR, ISR):
@@ -173,8 +173,6 @@ $$\hat{s} = s_{\text{target}} + e_{\text{interf}} + e_{\text{artif}} + e_{\text{
 * **$e_{\text{artif}}$**: Artificial noise components created by the AI model
 * **$e_{\text{spat}}$**: Components representing spatial distortion
 
-#### Evaluation Metrics
-
 $$
 \begin{aligned}
 \text{SDR (Source-to-Distortion)} &= 10 \log_{10} \frac{\| s_{\text{target}} \|^2}{\| e_{\text{interf}} + e_{\text{artif}} \|^2} \\
@@ -184,6 +182,8 @@ $$
 \end{aligned}
 $$
 
+<div align="center">
+ 
 | Stem | SDR (dB) | SIR (dB) | SAR (dB) | ISR (dB) |
 | :--- | :--- | :--- | :--- | :--- |
 | **Bass** | **+2.80 dB** | **+7.78 dB** | **+1.35 dB** | **+3.94 dB** |
@@ -191,7 +191,11 @@ $$
 | **Other** | **+1.71 dB** | **-0.88 dB** | **+3.21 dB** | **+3.67 dB** |
 | **Vocals** | **+2.30 dB** | **+3.56 dB** | **+1.73 dB** | **+6.03 dB** |
 
+</div>
+
+<div align="right">
 (higher is better)
+</div>
 
 ### B. Auto Equalizer & Genre Classification
 
