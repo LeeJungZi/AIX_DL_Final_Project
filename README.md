@@ -74,8 +74,8 @@ Usage:
 #### 1. Input and Encoding
 
 원본 오디오(mixture.wav)를 1D Convolutional Encoder에 통과시켜 고차원 잠재 표현(Latent Representation, mixture_w)으로 변환합니다.
-
-Parameters: Kernel Size(L)=20, Stride=10
+- Kernel Size: 20
+- Stride: 10
 
 #### 2. Separator Module (Core)
 
@@ -161,9 +161,7 @@ Training Loss (MAE)
 Epoch 1: 하드웨어 한계로 인해 1 에포크만 가능했습니다.
 
 - Train: 0.1561
- 
 - Validation: 0.2354
- 
 - Duration: ~20 hours
 
 #### Test Metrics (SDR, SIR, SAR, ISR):
@@ -268,9 +266,7 @@ Result:
 Functionality: 
 
 - Drag & Drop 업로드, Multi-track Sliders (Volume/EQ), Genre Badge
- 
 - 실시간 기능: Latency-free Mixing & Instant WAV Export (Full Mix / Stems)
-
 - Visualization: 입력 오디오의 특징(BPM, 에너지 등)을 정량적 차트로 표시합니다.
 
 ## V. Related Work
