@@ -23,4 +23,8 @@ dependencies:
     - fastapi
     - python-multipart
     - aiofiles
-
+    - tensorflow
+    - scikit-learn
+    - pandas
+    - numpy
+    - librosa
