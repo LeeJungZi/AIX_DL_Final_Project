@@ -30,7 +30,7 @@
 
 #### 1. MUSDB18-HQ
 
-Source: [Zendodo](https://zenodo.org/records/3338373)
+Source: [zendodo](https://zenodo.org/records/3338373)
 
 Size: 22.7 GB	
 
