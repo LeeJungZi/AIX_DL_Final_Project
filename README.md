@@ -34,7 +34,7 @@
 
 #### 1. MUSDB18-HQ
 
-Source: [zendodo](https://zenodo.org/records/3338373)
+Source: [SigSep](https://zenodo.org/records/3338373)
 
 Size: 22.7 GB	
 
@@ -253,13 +253,9 @@ Result: 26-dimensional feature을 2D로 projecting했을 때, 클래식(Classica
   <img src="./images/Genre_dist.png" width="500">
 </div>
 
-Analysis:
+Analysis: GTZAN 기반 모델을 사용하여 MUSDB18-HQ를 분석한 결과, 데이터셋이 Classical과Reggae 트랙 위주로 구성되어 있음을 확인했습니다.
 
-GTZAN 기반 모델을 사용하여 MUSDB18-HQ를 분석한 결과, 데이터셋이 Classical과Reggae 트랙 위주로 구성되어 있음을 확인했습니다.
-
-Implication:
-
-이는 소스 분리 모델이 이러한 장르의 전형적인 주파수 특성에 편향되었을 가능성을 시사합니다.
+Implication: 이는 소스 분리 모델이 이러한 장르의 전형적인 주파수 특성에 편향되었을 가능성을 시사합니다.
 
 **< Average Feature Analysis >**
 
@@ -267,13 +263,9 @@ Implication:
   <img src="./images/Genre_feature.png" width="500">
 </div>
 
-Objective: 
+Objective: 장르별 평균 음향 특징을 비교하여 데이터셋의 특성을 분석합니다. 
 
-장르별 평균 음향 특징을 비교하여 데이터셋의 특성을 분석합니다. 
-
-Analysis: 
-
-메탈과 락 트랙은 다른 장르에 비해 상대적으로 높은 에너지 값을 보였습니다.
+Analysis: 메탈과 락 트랙은 다른 장르에 비해 상대적으로 높은 에너지 값을 보였습니다.
 
 **< Feature Space Visualization >**
 
@@ -281,13 +273,9 @@ Analysis:
   <img src="./images/Genre_visual.png" width="500">
 </div>
 
-Method: 
+Method: PCA projection on MUSDB18-HQ
 
-PCA projection on MUSDB18-HQ
-
-Result: 
-
-시각화 결과, 데이터셋이 단일 클러스터에 국한되지 않고 광범위한 음향 특징 공간(스펙트럼 공간)을 포괄하고 있음을 보여줍니다.
+Result: 시각화 결과, 데이터셋이 단일 클러스터에 국한되지 않고 광범위한 음향 특징 공간(스펙트럼 공간)을 포괄하고 있음을 보여줍니다.
 
 <br/>
 
@@ -319,6 +307,10 @@ Functionality:
 5. Web Audio API 문서: 웹 브라우저 상에서 실시간 오디오 처리 및 믹싱을 가능하게 하는 API입니다. OfflineAudioContext, Gain Nodes 등의 도구를 활용하여, 백엔드 렌더링 과정을 거치지 않고도 사용자가 분리된 스템(Stem)을 즉각적으로 제어할 수 있는 환경을 구현했습니다. 이는 저희 웹 인터페이스의 실시간 믹싱 기능을 구현하는 핵심 기반이 되었습니다.
 
 6. Librosa & Audio Feature Engineering: Librosa는 MIR(Music Information Retrieval) 분야의 표준 파이썬 라이브러리입니다. 본 프로젝트에서 개발한 Custom EQ 예측 모델(CNN)과 장르 분류 모델의 입력 데이터 전처리 과정은 Librosa의 특징 추출 알고리즘에 전적으로 기반을 두고 있습니다. MFCC, Mel-Spectrogram 등의 특징 추출 기능은 저희 자체 모델이 오디오 데이터를 효과적으로 학습할 수 있는 기반을 제공했습니다.
+
+7. [Yi Luo and Nima Mesgarani, "Conv-TasNet: Surpassing Ideal Time-Frequency Magnitude Masking for Speech Separation" (2019)](https://arxiv.org/pdf/1809.07454)
+
+8. [Schaffer et al., "Music Separation Enhancement with Generative Modeling" (2022)](https://arxiv.org/pdf/2208.12387)
 
 <br/>
 <br/>
