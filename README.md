@@ -17,7 +17,7 @@
 
 이에 대한 대안으로 저희는 Time-domain(시간 영역)에서 직접 연산을 수행하여 연산 효율이 뛰어난 Conv-TasNet에 주목했습니다. 실험 결과, Conv-TasNet은 단 1 Epoch의 학습만으로도 유의미한 분리 성능을 보여주었으며, 이에 저희 팀은 Conv-TasNet을 최종 프로젝트의 핵심 분리 엔진으로 채택하였습니다.
 
-본 프로젝트의 최종 목표는 제한된 컴퓨팅 리소스 내에서 효율적인 모델(Conv-TasNet)을 학습시키고, 이를 커스텀 EQ 및 장르 분류 모델과 결합하여 상용 소프트웨어와 유사한 경험을 제공하는 자체 웹 인터페이스를 구현하는 것입니다.
+따라서 본 프로젝트의 최종 목표는 제한된 컴퓨팅 리소스 내에서 효율적인 모델(Conv-TasNet)을 학습시키고, 이를 커스텀 EQ 및 장르 분류 모델과 결합하여 상용 소프트웨어와 유사한 경험을 제공하는 자체 웹 인터페이스를 구현하는 것입니다.
 
 
 ## II. Dataset and Environment
@@ -26,11 +26,11 @@
 
 음악은 서로 다른 소스에서 나온 여러 스템(Stem)이 겹쳐져 하나의 조화로운 파형을 형성합니다. 인간은 청각으로 이를 쉽게 구분하지만, 컴퓨터 입장에서는 섞여 있는 하나의 입력 신호일 뿐입니다. 이를 분리하기 위해서는 비선형적인 혼합 과정, 고차원 오디오 데이터 처리, 그리고 긴 시간적 의존성(Temporal Dependency)을 모델링해야 합니다. 이러한 시스템을 처음부터 학습시키는 것은 매우 높은 계산 비용을 요구합니다.
 
-### 	B. Datasets
+### B. Datasets
 
-1. MUSDB18-HQ
+#### 1. MUSDB18-HQ
 
-Source: https://zenodo.org/records/3338373
+Source: [Zendodo](https://zenodo.org/records/3338373)
 
 Size: 22.7 GB	
 
@@ -50,7 +50,7 @@ Usage:
 
  
 
-2. GTZAN Genre Collection
+#### 2. GTZAN Genre Collection
 
 Source: [Kaggle](https://www.kaggle.com/datasets/carlthome/gtzan-genre-collection)
 
@@ -71,13 +71,13 @@ Usage:
 ### A. Music Source Separation – Conv-TasNet
 처음 시도했던 Demucs(양방향 LSTM 및 인코더-디코더 구조)는 성능은 뛰어나지만 학습 속도가 매우 느렸습니다. Colab GPU 환경 기준 1 Epoch에 약 20시간이 소요되었으며 Loss 수렴이 되지 않았습니다. 반면, Conv-TasNet은 마스킹 기반의 Time-domain 분리 방식을 사용하여 연산 효율성이 뛰어났습니다. 테스트 결과, 단 1 Epoch 학습만으로도 준수한 SDR(신호 대 잡음비)을 확보할 수 있어 이를 채택했습니다.
 
-1. Input and Encoding
+#### 1. Input and Encoding
 
 원본 오디오(mixture.wav)를 1D Convolutional Encoder에 통과시켜 고차원 잠재 표현(Latent Representation, mixture_w)으로 변환합니다.
 
 Parameters: Kernel Size(L)=20, Stride=10
 
-2. Separator Module (Core)
+#### 2. Separator Module (Core)
 
 시스템의 핵심으로, 1D Convolution과 ReLU 활성화 함수 스택을 사용합니다.
 
@@ -86,12 +86,13 @@ Parameters: Kernel Size(L)=20, Stride=10
 - Stride: 1
 - Dilation: 2⁰, 2¹, … , 2⁷
 
-3. Masking and Decoding
+#### 3. Masking and Decoding
    
 모델은 잠재 표현(mixture_w)과 추정된 마스크(est_mask)를 요소별 곱(Element-wise Multiplication)으로 결합합니다. 이후 Decoder를 통해 다시 시간 도메인 파형으로 변환하여 최종 분리된 오디오(est_source)를 생성합니다.
+
 mixture_w ⊙ est_mask → est_source_features
 
-4. Training Setup
+#### 4. Training Setup
    
 Target: 4 Stems (Vocals, Drums, Bass, Other)
 
@@ -106,15 +107,15 @@ Training Strategy: 단 1 Epoch 학습
 
 분리된 Stem의 음질을 자동으로 보정하기 위해, 오디오 클립의 저음(Low), 중음(Mid), 고음(High) gain값을 예측하는 경량화된 Custom CNN 모델을 구축했습니다.
 
-1. Data Preparation
+#### 1. Data Preparation
 
 깨끗한 원본 Stem(예: vocals.wav)에 임의의 손상을 가해 학습 데이터를 생성합니다. Low(100Hz), Mid(1kHz), High(10kHz) 대역에 -10dB ~ +10dB 사이의 랜덤 게인을 적용하여 '손상된 오디오'를 만들고, 모델은 이 손상의 역값(Inverse)을 예측하도록 학습됩니다.
 
-2. Mel Spectrogram Conversion
+#### 2. Mel Spectrogram Conversion
    
 오디오를 인간의 청각 특성과 유사한 Mel Spectrogram으로 변환하여 모델의 입력(Input Image)으로 사용합니다. (64 frequency bins)
 
-3. CNN Architecture
+#### 3. CNN Architecture
    
 3개의 Convolution Layer (채널 수: 16 → 32 → 64)
 
@@ -122,7 +123,7 @@ Training Strategy: 단 1 Epoch 학습
 
 마지막에 Adaptive Average Pooling을 거쳐 특징맵을 압축
 
-4. Prediction
+#### 4. Prediction
    
 Flatten 후 2개의 Linear Layer를 거쳐 최종적으로 3개의 값(Low, Mid, High EQ Gain)을 출력합니다.
 
@@ -133,20 +134,19 @@ Performance: 평균 예측 오차(MAE) 약 3.32dB 달성.
 
 MUSDB18-HQ 데이터셋의 메타데이터를 보강하고 분석하기 위해, GTZAN 데이터셋으로 학습된 Custom Keras DNN 분류기를 구축했습니다.
 
-1. Feature Extraction (Librosa)
+#### 1. Feature Extraction (Librosa)
 
 각 오디오에서 26차원 특징 벡터를 추출합니다.
 
 Features: Chromagram, Spectral Centroid/Bandwidth/Rolloff, RMS Energy, ZCR, MFCCs (1-20)
 
-3. Neural Network Architecture
+#### 2. Neural Network Architecture
 
 Structure: Fully Connected Dense Layers (512 → 256 → 128 → 64 → 10 Output)
 
 Tech Spec: ReLU Activation, Dropout (0.2), Adam Optimizer, Sparse Categorical Crossentropy
 
 단순한 구조임에도 데이터셋 프로파일링과 분류 작업에 충분한 성능을 보였습니다.
-
 
 ### D. Dataset Profiling
 
@@ -263,7 +263,7 @@ Result:
 <사진>
 
 
-4. 시스템 구현 결과 (System Implementation Result)
+### C. 시스템 구현 결과 (System Implementation Result)
 
 <Web Interface>
 
@@ -274,39 +274,6 @@ Functionality:
 - 실시간 기능: Latency-free Mixing & Instant WAV Export (Full Mix / Stems)
 
 - Visualization: 입력 오디오의 특징(BPM, 에너지 등)을 정량적 차트로 표시합니다.
-
-
-code @windows+RTX4060
-환경 설정:
-cd “demucs folder path”
-conda env create -f environment-cuda.yml
-pip install "uvicorn<0.30.0" fastapi python-multipart aiofiles
-pip install tensorflow scikit-learn pandas numpy librosa
-winget install Gyan.FFmpeg
-
-add demucs to library:
-cd “demucs folder path”
-pip install -e .
-
-Train “Music Source Separation”:
-cd “demucs folder path”
-python -m demucs -b 4 --musdb "musdb18hq folder path" --tasnet --samples=40000 --channels 32 --split_valid --repitch 0 -w 2 --is_wav
-
-Train “Auto Equalizer”:
-cd “EQ folder path”
-python train_eq_model.py
-
-Train “Genre Classification”:
-cd “demucs folder path”
-python extract_features.py
-python train_genre.py
-	Move output files to “model/” folder
-
-Use local webpage:
-cd “MyWebDemucs folder path”
-python main.py
-	go to http://localhost:8000
-
 
 ## V. Related Work
 
@@ -335,16 +302,93 @@ Demucs와 같은 거대 모델은 학생 환경에서 운용하기 어려웠으�
 또한, Custom CNN 기반의 Auto-EQ와 DNN 기반의 GenreNet을 직접 설계하고 구현함으로써, 단순한 음원 분리를 넘어 오디오를 분석하고 보정하는 기능까지 확장했습니다. 특히 멜 스펙트로그램과 합성 왜곡 데이터를 이용한 EQ 예측 모델은 비교적 작은 구조로도 톤 보정의 가능성을 증명했습니다.
 
 최종적으로 이 모든 기능을 웹 인터페이스에 통합함으로써, 복잡한 딥러닝 모델을 사용자가 쉽게 다룰 수 있는 상호작용 도구로 변환했습니다. 비록 학습량의 한계로 인해 상용 소프트웨어 수준의 완벽한 분리도에는 미치지 못했을 수 있으나, 효율적인 모델 선정과 파이프라인 최적화를 통해 로컬 환경에서도 동작하는 All-in-One 오디오 처리 시스템을 성공적으로 구현했다는 점에 의의가 있습니다.
- 
+
 시연 영상 : https://www.youtube.com/watch?v=-MjuxT47MOY
+
+
+## Code @windows+RTX4060
+
+### Env setting:
+
+```bash
+cd “demucs folder path”
+```
+```bash
+conda env create -f environment-cuda.yml
+```
+```bash
+pip install "uvicorn<0.30.0" fastapi python-multipart aiofiles
+```
+```bash
+pip install tensorflow scikit-learn pandas numpy librosa
+```
+```bash
+winget install Gyan.FFmpeg
+```
+
+### Add demucs to library:
+
+```bash
+cd “demucs folder path”
+```
+```bash
+pip install -e .
+```
+
+### Train “Music Source Separation”:
+
+```bash
+cd “demucs folder path”
+```
+```bash
+python -m demucs -b 4 --musdb "musdb18hq folder path" --tasnet --samples=40000 --channels 32 --split_valid --repitch 0 -w 2 --is_wav
+```
+
+### Train “Auto Equalizer”:
+
+```bash
+cd “EQ folder path”
+```
+```bash
+python train_eq_model.py
+```
+
+### Train “Genre Classification”:
+
+```bash
+cd “demucs folder path”
+```
+```bash
+python extract_features.py
+```
+```bash
+python train_genre.py
+```
+Move output files to “model/” folder
+<br/>
+<br/>
+
+### Use local webpage:
+
+```bash
+cd “MyWebDemucs folder path”
+```
+```bash
+python main.py
+```
+go to http://localhost:8000
+<br/>
+<br/>
+
+## Roles
 
 이중원 (Team Leader): 프로젝트 총괄 관리, 주제 제시, Demucs와 Conv-TasNet 학습, 비교 분석을 통한 핵심 분리 모델 선정, Conv-TasNet 학습 파이프라인 구축, 관련 연구(Related Work) 조사 및 정리
 
-서지민: 전체 데이터 전처리 파이프라인 구축(MUSDB18-HQ, GTZAN), On-Device 환경을 고려한 경량화 모델 아키텍처(Auto-EQ CNN, GenreNet) 설계 및 	구현, 아이디어 충돌에서 의견 조정
+서지민: 전체 데이터 전처리 파이프라인 구축(MUSDB18-HQ, GTZAN), On-Device 환경을 고려한 경량화 모델 아키텍처(Auto-EQ CNN, GenreNet) 설계 및 구현, 아이디어 충돌에서 의견 조정
 
 김모연: 아이디어 제공, Feature Engineering, 모델 성능 정량 평가(BSS Eval 지표 분석), 실험 결과 시각화(그래프 및 PCA 분석), 영상 촬영 및 편집
 
-박현우: 토이 모델 실험으로 프로젝트 가능성 타진, 웹 인터페이스 개발(FastAPI 백엔드 및 실시간 믹싱 로직), 전체 딥러닝 모델 	시스템 통합, 보고서 작성 및 편집
+박현우: 토이 모델 실험으로 프로젝트 가능성 타진, 웹 인터페이스 개발(FastAPI 백엔드 및 실시간 믹싱 로직), 전체 딥러닝 모델 시스템 통합, 보고서 작성 및 편집
 
 
 
