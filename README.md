@@ -195,7 +195,7 @@ $$
 | **Other** | **+1.71 dB** | **-0.88 dB** | **+3.21 dB** | **+3.67 dB** |
 | **Vocals** | **+2.30 dB** | **+3.56 dB** | **+1.73 dB** | **+6.03 dB** |
 
-(dB, higher is better)
+(higher is better)
 
 ### B. Auto Equalizer & Genre Classification
 
