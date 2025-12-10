@@ -158,15 +158,13 @@ MUSDB18-HQ에는 장르 레이블이 없으므로, 위에서 만든 GenreNet을 
    
 Training Loss (MAE)
 
-Epoch 1:
+Epoch 1: 하드웨어 한계로 인해 1 에포크만 가능했습니다.
 
 - Train: 0.1561
  
 - Validation: 0.2354
  
 - Duration: ~20 hours
- 
-소요 시간: 약 20시간 하드웨어 한계로 인해 1 에포크만 가능했습니다.
 
 #### Test Metrics (SDR, SIR, SAR, ISR):
 
