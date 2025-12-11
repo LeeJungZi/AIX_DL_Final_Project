@@ -94,6 +94,14 @@ python train_genre.py
 
 (3) Move models to model/
 
+genre_model.h5
+
+genre_scaler.pkl
+
+genre_encoder.pkl
+
+-> resources/model/
+
 	.../resources/
 		│
 		├── main.py
@@ -285,6 +293,7 @@ python main.py
 Open browser:
 
 http://127.0.0.1:8000
+
 
 
 
