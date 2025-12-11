@@ -24,18 +24,6 @@ https://drive.google.com/file/d/1Vl-ho7_D4SKmqaCp8b8I7XisicKblUPA/view?usp=shari
 
 Auto Equalizer model (model2_mastering.pth): resources/model/에 저장됨
 
-<br/>
-
-(3) demucs-2 repository download 후 압축 풀기
-
-직접 학습 시킨 Conv-Tasnet 기반의 checkpoint model을 사용하기 위해 필요
-
-demucs-2 repository download:
-
-https://github.com/facebookresearch/demucs/tree/v2
-
--> 압축 해제 후 demucs-2/를 resources/로 이동
-
 	.../resources/
 		│
 		├── main.py
@@ -50,11 +38,6 @@ https://github.com/facebookresearch/demucs/tree/v2
 		├── Data/
 		│   └── genres_original/ ...
 		│
-		├── demucs-2/
-		│   └── .github/
-		│   └── baselines/
-		│   └── ...
-		│
 		└── static/
 		    └── index.html
 
@@ -62,7 +45,6 @@ https://github.com/facebookresearch/demucs/tree/v2
 
 ## 2. env setting
 
-(1) Create env
 ```bash
 cd “resources PATH”
 ```
@@ -71,14 +53,6 @@ conda env create -f environment-cpu.yml
 ```
 ```bash
 conda activate demucs
-```
-
-(2) demucs-2 libarary처럼 사용
-```bash
-cd “demucs-2 PATH”
-```
-```bash
-pip install -e .
 ```
 
 <br/>
@@ -127,11 +101,6 @@ genre_encoder.pkl
 		│
 		├── Data/
 		│   └── genres_original/ ...
-		│
-		├── demucs-2/
-		│   └── .github/
-		│   └── baselines/
-		│   └── ...
 		│
 		├── static/
 		│   └── index.html
@@ -303,6 +272,7 @@ python main.py
 Open browser:
 
 http://127.0.0.1:8000
+
 
 
 
