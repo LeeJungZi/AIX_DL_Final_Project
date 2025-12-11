@@ -87,6 +87,8 @@ cd “resources PATH”
 python extract_features.py
 ```
 
+[Error] Failed to process jazz.00054.wav: 학습에 문제되지 않음
+
 (2) Train genre model
 ```bash
 python train_genre.py
@@ -293,6 +295,7 @@ python main.py
 Open browser:
 
 http://127.0.0.1:8000
+
 
 
 
