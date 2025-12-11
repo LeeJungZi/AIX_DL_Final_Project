@@ -332,14 +332,46 @@ Demucs와 같은 거대 모델은 학생 환경에서 운용하기 어려웠으�
 <br/>
 <br/>
 
-## Code @windows+RTX4060
+## Training Process @windows+RTX4060
+
+try Webpage demo: resources/README.md
 
 시연 영상 : https://www.youtube.com/watch?v=-MjuxT47MOY
+
+아래는 Source Separation 및 Auto Equalizer model 학습을 위한 코드로, MUSDB18-HQ dataset과 GPU가 추가로 필요합니다.
+dataset 다운로드 및 학습에 긴 시간이 소요되므로 저희가 직접 학습시킨 pre-trained model을 사용할 것을 권장합니다.
+
+	.../resources/
+		│
+		├── main.py
+		├── extract_features.py
+		├── train_genre.py
+        ├── train_eq_model.py
+		├── environment-cpu.yml
+     	├── environment-cuda.yml
+		│
+		├── model/
+		│   ├── checkpoint.th
+		│   └── model2_mastering.pth
+		│
+		├── Data/
+		│   └── genres_original/ ...
+		│
+		├── demucs-2/
+		│   └── .github/
+		│   └── demucs/
+        │   └── musdb18hq/
+     	│       └── test/
+        │       └── train/
+		│   └── ...
+		│
+		└── static/
+		    └── index.html
 
 ### Env setting:
 
 ```bash
-cd “demucs folder path”
+cd “demucs-2 PATH”
 ```
 ```bash
 conda env create -f environment-cuda.yml
@@ -350,14 +382,11 @@ pip install "uvicorn<0.30.0" fastapi python-multipart aiofiles
 ```bash
 pip install tensorflow scikit-learn pandas numpy librosa
 ```
-```bash
-winget install Gyan.FFmpeg
-```
 
 ### Add demucs to library:
 
 ```bash
-cd “demucs folder path”
+cd “demucs-2 PATH”
 ```
 ```bash
 pip install -e .
@@ -366,7 +395,7 @@ pip install -e .
 ### Train “Music Source Separation”:
 
 ```bash
-cd “demucs folder path”
+cd “demucs PATH”
 ```
 ```bash
 python -m demucs -b 4 --musdb "musdb18hq folder path" --tasnet --samples=40000 --channels 32 --split_valid --repitch 0 -w 2 --is_wav
@@ -375,36 +404,11 @@ python -m demucs -b 4 --musdb "musdb18hq folder path" --tasnet --samples=40000 -
 ### Train “Auto Equalizer”:
 
 ```bash
-cd “EQ folder path”
+cd “demucs-2 PATH”
 ```
 ```bash
 python train_eq_model.py
 ```
-
-### Train “Genre Classification”:
-
-```bash
-cd “demucs folder path”
-```
-```bash
-python extract_features.py
-```
-```bash
-python train_genre.py
-```
-Move output files to “model/” folder
-<br/>
-<br/>
-
-### Use local webpage:
-
-```bash
-cd “MyWebDemucs folder path”
-```
-```bash
-python main.py
-```
-go to http://localhost:8000
 
 <br/>
 <br/>
