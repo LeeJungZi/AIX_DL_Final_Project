@@ -282,7 +282,7 @@ Result: 시각화 결과, 데이터셋이 단일 클러스터에 국한되지 �
 **< Web Interface >**
 
 <div align="center">
-  <img src="./images/webpage_demo_revised.png" width="500">
+  <img src="./images/webpage_demo_revised.png" width="1000">
 </div>
 
 Functionality: 
