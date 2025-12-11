@@ -10,6 +10,8 @@ https://www.kaggle.com/datasets/andradaolteanu/gtzan-dataset-music-genre-classif
 
 -> 압축 해제 후 Data/를 resources/로 이동
 
+<br/>
+
 (2) 모델 download
 
 MUSDB18-HQ의 큰 용량과 긴 학습시간으로 인해 Source Separation model과 Auto Equalizer model은 저희가 직접 학습시킨 pre-trained model을 제공합니다.
@@ -21,6 +23,8 @@ https://drive.google.com/file/d/1Vl-ho7_D4SKmqaCp8b8I7XisicKblUPA/view?usp=shari
 -> resources/model에 저장
 
 Auto Equalizer model (model2_mastering.pth): resources/model/에 저장됨
+
+<br/>
 
 (3) demucs-2 repository download 후 압축 풀기
 
@@ -54,6 +58,7 @@ https://github.com/facebookresearch/demucs/tree/v2
 		└── static/
 		    └── index.html
 
+<br/>
 
 ## 2. env setting
 
@@ -76,6 +81,7 @@ cd “demucs-2 PATH”
 pip install -e .
 ```
 
+<br/>
 
 ## 3. Genre model training
 
@@ -132,6 +138,7 @@ genre_encoder.pkl
 		│
 		└── static_results/        # auto-generated at runtime
 
+<br/>
 
 ## 4. Run
 
@@ -146,7 +153,8 @@ http://127.0.0.1:8000
 
 (한 곡 분석에 약 5분 소요)
 
-
+<br/>
+<br/>
 
 # Mac
 
@@ -295,6 +303,7 @@ python main.py
 Open browser:
 
 http://127.0.0.1:8000
+
 
 
 
