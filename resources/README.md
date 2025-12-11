@@ -1,4 +1,4 @@
-# Windows
+# Windows (권장)
 
 ## 1. 파일 준비
 
@@ -271,6 +271,7 @@ python main.py
 Open browser:
 
 http://127.0.0.1:8000
+
 
 
 
