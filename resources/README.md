@@ -4,7 +4,7 @@
 
 (1) 전체 repository downdload 후 압축 풀기
 
-GTZAN dataset (1.32GB) download: https://www.kaggle.com/datasets/carlthome/gtzan-genre-collection
+GTZAN dataset (1.41 GB) download: https://www.kaggle.com/datasets/andradaolteanu/gtzan-dataset-music-genre-classification
 
 -> 압축 해제 후 Data/를 resources/로 이동
 
@@ -224,9 +224,9 @@ Create folder:
 
 data/genres_original
 
-Download GTZAN dataset (1.32 GB):
+Download GTZAN dataset (1.41 GB):
 
-https://www.kaggle.com/datasets/carlthome/gtzan-genre-collection
+https://www.kaggle.com/datasets/andradaolteanu/gtzan-dataset-music-genre-classification
 
 Unzip into:
 
@@ -279,4 +279,5 @@ python main.py
 Open browser:
 
 http://127.0.0.1:8000
+
 
