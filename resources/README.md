@@ -4,7 +4,7 @@
 
 (1) 전체 repository downdload 후 압축 풀기
 
-GTZAN dataset (1.2GB) download: https://www.kaggle.com/datasets/andradaolteanu/gtzan-dataset-music-genre-classification
+GTZAN dataset (1.32GB) download: https://www.kaggle.com/datasets/carlthome/gtzan-genre-collection
 
 -> 압축 해제 후 Data/를 resources/로 이동
 
@@ -151,9 +151,9 @@ Add model2_mastering.pth → Model
 ## 1. Settings
 
 (1) FFmpeg for Mac M1
-
+```bash
 brew install ffmpeg
-
+```
 (2) Conda Environment (NO YAML FILES)
 ```bash
 conda create -n demucs python=3.10
@@ -224,9 +224,9 @@ Create folder:
 
 data/genres_original
 
-Download GTZAN dataset (1.2GB):
+Download GTZAN dataset (1.32 GB):
 
-https://www.kaggle.com/datasets/andradaolteanu/gtzan-dataset-music-genre-classification
+https://www.kaggle.com/datasets/carlthome/gtzan-genre-collection
 
 Unzip into:
 
@@ -279,3 +279,4 @@ python main.py
 Open browser:
 
 http://127.0.0.1:8000
+
