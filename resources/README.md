@@ -4,7 +4,9 @@
 
 (1) 전체 repository downdload 후 압축 풀기
 
-GTZAN dataset (1.41 GB) download: https://www.kaggle.com/datasets/andradaolteanu/gtzan-dataset-music-genre-classification
+GTZAN dataset (1.41 GB) download:
+
+https://www.kaggle.com/datasets/andradaolteanu/gtzan-dataset-music-genre-classification
 
 -> 압축 해제 후 Data/를 resources/로 이동
 
@@ -12,7 +14,9 @@ GTZAN dataset (1.41 GB) download: https://www.kaggle.com/datasets/andradaolteanu
 
 MUSDB18-HQ의 큰 용량과 긴 학습시간으로 인해 Source Separation model과 Auto Equalizer model은 저희가 직접 학습시킨 pre-trained model을 제공합니다.
 
-Source Separation model (checkpoint.th): https://drive.google.com/file/d/1Vl-ho7_D4SKmqaCp8b8I7XisicKblUPA/view?usp=sharing
+Source Separation model (checkpoint.th):
+
+https://drive.google.com/file/d/1Vl-ho7_D4SKmqaCp8b8I7XisicKblUPA/view?usp=sharing
 
 -> resources/model에 저장
 
@@ -22,7 +26,9 @@ Auto Equalizer model (model2_mastering.pth): resources/model/에 저장됨
 
 직접 학습 시킨 Conv-Tasnet 기반의 checkpoint model을 사용하기 위해 필요
 
-demucs-2 repository download: https://github.com/facebookresearch/demucs/tree/v2
+demucs-2 repository download:
+
+https://github.com/facebookresearch/demucs/tree/v2
 
 -> 압축 해제 후 demucs-2/를 resources/로 이동
 
@@ -279,5 +285,6 @@ python main.py
 Open browser:
 
 http://127.0.0.1:8000
+
 
 
