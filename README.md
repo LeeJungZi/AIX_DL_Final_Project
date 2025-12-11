@@ -334,7 +334,7 @@ Demucs와 같은 거대 모델은 학생 환경에서 운용하기 어려웠으�
 
 ## Training Process @windows+RTX4060
 
-try Webpage demo: resources/README.md
+Try webpage demo: https://github.com/LeeJungZi/AIX_DL_Final_Project/blob/081bb1be2fb13550766766d09e617e9ebb713daf/resources/README.md
 
 시연 영상 : https://www.youtube.com/watch?v=-MjuxT47MOY
 
