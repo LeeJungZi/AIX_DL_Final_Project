@@ -339,6 +339,7 @@ Try webpage demo: https://github.com/LeeJungZi/AIX_DL_Final_Project/blob/081bb1b
 시연 영상 : https://www.youtube.com/watch?v=-MjuxT47MOY
 
 아래는 Source Separation 및 Auto Equalizer model 학습을 위한 코드로, MUSDB18-HQ dataset과 GPU가 추가로 필요합니다.
+
 dataset 다운로드 및 학습에 긴 시간이 소요되므로 저희가 직접 학습시킨 pre-trained model을 사용할 것을 권장합니다.
 
 	.../resources/
