@@ -1,5 +1,7 @@
 import os
+# FFmpeg 코덱 문제 방지
 os.environ["TORCHAUDIO_USE_CODEC"] = "False"
+
 import shutil
 import subprocess
 import uuid
@@ -22,10 +24,11 @@ from pydantic import BaseModel
 # ================================================================
 # Paths
 # ================================================================
-DEMUCS_MODEL = "htdemucs"
-RESULT_DIR = "static_results"
+# [수정됨] 커스텀 체크포인트 경로 설정 (main.py와 동일하게 설정)
 MODEL_DIR = "model"
+DEMUCS_MODEL_PATH = os.path.join(MODEL_DIR, "checkpoint.th") 
 
+RESULT_DIR = "static_results"
 os.makedirs(RESULT_DIR, exist_ok=True)
 
 GENRE_MODEL_PATH = os.path.join(MODEL_DIR, "genre_model.h5")
@@ -92,18 +95,41 @@ except Exception as e:
 
 def extract_audio_features(path):
     try:
+        # 1. 오디오 로드 (60초 제한)
         y, sr = librosa.load(path, mono=True, duration=60)
 
+        # 2. 비트 트래킹
         tempo, _ = librosa.beat.beat_track(y=y, sr=sr)
+        
+        # tempo가 배열로 나오는 경우와 스칼라로 나오는 경우 모두 처리
+        bpm_val = tempo[0] if isinstance(tempo, np.ndarray) else tempo
 
+        # 3. 특징 추출 (평균값 계산)
+        cent = np.mean(librosa.feature.spectral_centroid(y=y, sr=sr))
+        rolloff = np.mean(librosa.feature.spectral_rolloff(y=y, sr=sr))
+        zcr = np.mean(librosa.feature.zero_crossing_rate(y))
+        rms = np.mean(librosa.feature.rms(y=y))
+
+        # 4. 정규화 (참고하신 로직 적용: 0~100 스케일로 변환)
         features = {
-            "BPM": round(float(tempo), 1),
-            "Centroid": round(float(np.mean(librosa.feature.spectral_centroid(y=y, sr=sr))), 1),
-            "Rolloff": round(float(np.mean(librosa.feature.spectral_rolloff(y=y, sr=sr))), 1),
-            "ZCR": round(float(np.mean(librosa.feature.zero_crossing_rate(y))), 3),
-            "RMS": round(float(np.mean(librosa.feature.rms(y=y))), 3),
+            # BPM: 200 BPM을 100점으로 기준 잡고 나눔
+            "BPM": round(min(bpm_val, 200) / 2, 1),
+            
+            # Centroid: 5000Hz를 100점으로 기준 (밝기)
+            "Centroid": round(min(cent, 5000) / 50, 1),
+            
+            # Rolloff: 10000Hz를 100점으로 기준 (날카로움)
+            "Rolloff": round(min(rolloff, 10000) / 100, 1),
+            
+            # ZCR: 작은 값이므로 500배 증폭 후 100점 제한 (노이즈/거친 정도)
+            "ZCR": round(min(zcr * 500, 100), 1),
+            
+            # RMS: 400배 증폭 후 100점 제한 (에너지/볼륨)
+            "RMS": round(min(rms * 400, 100), 1),
         }
+        
         return features
+
     except Exception as e:
         print("Feature extraction error:", e)
         return None
@@ -169,6 +195,8 @@ def predict_eq(path):
 
 
 def find_demucs_output(folder):
+    # Demucs output structure depends on model name (tasnet vs htdemucs)
+    # Recursively find where 'vocals.wav' landed
     for root, dirs, files in os.walk(folder):
         if "vocals.wav" in files:
             return root
@@ -201,17 +229,19 @@ async def upload(file: UploadFile = File(...), use_ai_eq: bool = Form(True)):
     features = extract_audio_features(input_path)
     genre = predict_genre(input_path)
 
-    # Run Demucs without TorchCodec
+    # [수정됨] Run Demucs with Custom Checkpoint (tasnet architecture)
+    # main.py에서 사용한 옵션: -n tasnet --model [경로]
     cmd = [
         "python", "-m", "demucs.separate",
-        "-n", DEMUCS_MODEL,
+        "-n", "tasnet",               # 아키텍처: 사용자 모델이 TasNet 기반이라고 가정 (main.py 참고)
+        "--model", DEMUCS_MODEL_PATH, # 커스텀 체크포인트 경로 지정
         "-d", "cpu",
-        "-j", "2",
         "-o", folder,
         input_path
     ]
 
     print("Running:", " ".join(cmd))
+    # TORCHAUDIO_USE_CODEC 환경변수 유지
     subprocess.run(cmd, env={**os.environ, "TORCHAUDIO_USE_CODEC": "False"})
 
     target = find_demucs_output(folder)
