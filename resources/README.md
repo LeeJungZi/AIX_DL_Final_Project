@@ -115,10 +115,9 @@ genre_encoder.pkl
 python main.py
 ```
 
-Open browser:
+Open browser: http://127.0.0.1:8000
 
-http://127.0.0.1:8000
-
+resources/test.mp3 (또는 개인 음악 파일) upload
 
 (한 곡 분석에 약 5분 소요)
 
@@ -272,6 +271,7 @@ python main.py
 Open browser:
 
 http://127.0.0.1:8000
+
 
 
 
